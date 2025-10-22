@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <title>Racha Navideña</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"/>
@@ -60,7 +59,7 @@
 <body>
 
 <header>
-    <h1>🎅🎄🎁 RACHA NAVIDEÑA DIRECTO 🎅🎄🎁</h1>
+    <h1>🎅🎄🎁 RACHA NAVIDEÑA DIRECTO 🎁🎄🎅</h1>
 </header>
 
 <div class="dynamic-text-container">
@@ -74,36 +73,39 @@
 
 <div id="contentContainer" class="hidden-content">
     <div class="controls" aria-hidden="false">
-        <select id="filterSemana"><option value="">Semana: Todas</option></select>
-        <select id="filterFlota"><option value="">FLOTA: Todas</option></select>
-        <button id="clearFilters" style="padding:8px 10px;border-radius:8px;border:1px solid #d0d7de;background:#fff;cursor:pointer;">Limpiar</button>
+        <label for="filterSemana" style="font-weight:600;">Semana:</label>
+        <select id="filterSemana"><option value="">Todas</option></select>
+
+        <label id="labelFlota" style="
+            font-weight:600;
+            color:#007BFF;
+            margin-left:10px;
+        ">Flota: </label>
+
     </div>
 
     <div class="table-wrapper">
-        <table id="dataTable" class="display nowrap" style="width:100%">
+        <table id="dataTable" class="display nowrap" style="width:100%; border: 2px solid black;border-collapse: collapse; font-family: 'Poppins', sans-serif;">
             <thead><tr id="theadRow"></tr></thead>
-            <tbody id="tbodyRows"></tbody>
+            <tbody id="tbodyRows"></tbody>  
         </table>
     </div>
-
-    <div class="chart-container">
-        <canvas id="chartServicios"></canvas>
-    </div>
+    <div id="bloqueMensaje" style="margin-top: 30px;"></div>
 </div>
-
 <script>
 function normalize(s){ if(s === undefined || s === null) return ""; return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g,'').replace(/[^a-zA-Z0-9_./-]/g,'').toLowerCase(); }
 function escapeRegex(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
 
 let chartServicios;
 let dataTable;
-let rawData; // Variable para almacenar los datos brutos del Excel
-let idxSemana, idxFlota, idxMovil, idxServicios, idxMeta;
+let rawData;
+let rawData1; // Variable para almacenar los datos brutos del Excel
+let idxSemana, idxFlota, idxMovil, idxServicios, idxMeta, idxCump, idxDiferencia;
 
 
 // Script para el texto dinámico
 document.addEventListener("DOMContentLoaded", function() {
-    const dynamicTexts = ["Premios !!!", "Pavo!!", "Canasta!!"];
+    const dynamicTexts = ["Premios !!!", "Gana un Pavo!! 🍗", "Gana una Canasta!! 🎁"];
     let textIndex = 0;
     const dynamicTextElement = document.getElementById("dynamicText");
 
@@ -115,6 +117,214 @@ document.addEventListener("DOMContentLoaded", function() {
     setInterval(changeText, 3000); // Cambia el texto cada 3 segundos
     changeText(); // Inicia el texto inmediatamente
 });
+// POPUP
+// === FUNCION POPUP RACHA ===
+function mostrarEstadoRacha(esActiva) {
+    $('#popupRacha').remove();
+    let titulo, mensaje, subtitulo, imagen, fondo, colorBoton;
+
+    if (esActiva === true)
+    {
+        titulo = '🔥 Racha activa';
+        mensaje = '¡Felicitaciones! Mantienes tu racha completando los desafíos cada semana 👏'
+        subtitulo = 'Participa en la *Racha Navideña* y gana premios. 🎁';
+        imagen = 'racha.png';
+        fondo = 'linear-gradient(135deg, #ff4500, #ff8c00, #ffd700)';
+        colorBoton = '#ff4500';
+    }
+    else if (esActiva === false)
+    {
+        titulo = '❄️ Racha congelada';
+        mensaje = `¡No lograste mantener tus ${numsem} semanas activas! 😢`;
+        subtitulo = '(Aún puedes mantener tu racha si cumples los desafíos de restablecimiento)';
+        imagen = 'congelada.png';
+        fondo = 'linear-gradient(135deg, #0033cc, #0055ff, #66a3ff)';
+        colorBoton = '#0033cc';
+    }
+    else if (esActiva === 'rachita')
+    {
+        titulo = '💠 Pasaste a Rachita';
+        mensaje = 'No pudiste cumplir con la racha, pero no te desanimes: participa en la rachita y gana premios.';
+        subtitulo = 'Participa en la rachita y gana la canasta navideña. 🎁';
+        imagen = 'rachita.png';
+        fondo = 'linear-gradient(135deg, #0033cc, #0055ff, #66a3ff)';
+        colorBoton = '#0033cc';
+    }
+
+    const popupHTML = `
+        <div id="popupRacha" style="
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); 
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            z-index: 9999;
+        ">
+            <div style="
+                ${esActiva
+                    ? 'background: linear-gradient(135deg, #ff4500, #ff8c00, #ffd700);'
+                    : 'background: linear-gradient(135deg, #0033cc, #0055ff, #66a3ff);'}
+                border-radius: 25px;
+                text-align: center;
+                padding: 40px 60px;
+                width: 600px;
+                max-width: 90%;
+                color: white;
+                font-family: 'Poppins', sans-serif;
+                animation: aparecer 0.4s ease-out, fuego 3s infinite linear;
+                background-size: 300% 300%;
+            ">
+                <img src="${imagen}" style="width: 180px; height: auto; margin-bottom: 20px;">
+                <h2 style="font-size: 34px; margin: 10px 0;">${titulo}</h2>
+                <p style="font-size: 20px; font-weight: 500; margin-bottom: 10px;">${mensaje}</p>
+                <p style="font-size: 14px; font-style: italic;">${subtitulo}</p>
+                <button id="cerrarPopup" style="
+                    margin-top: 25px; 
+                    padding: 10px 20px; 
+                    border: none; 
+                    border-radius: 10px; 
+                    background: white; 
+                    color: ${esActiva ? '#ff4500' : '#0033cc'}; 
+                    font-weight: bold; 
+                    cursor: pointer;
+                ">Cerrar</button>
+            </div>
+        </div>
+    `;
+
+    $('body').append(popupHTML);
+
+    $('#cerrarPopup').click(function() {
+        $('#popupRacha').fadeOut(300, function() { $(this).remove(); });
+    });
+}
+
+function crearRachitaDebajo() {
+    if ($('#contenedorRachita').length) return;
+
+    let html = `
+        <div id="contenedorRachita" style="
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:10px;
+        ">
+            <div id="tituloRachita" style="
+                text-align:center;
+                color:#ff7300;
+                font-weight:bold;
+                font-family:'Poppins',sans-serif;
+                font-size:28px;
+                margin-bottom:10px;
+            ">🎁 ¡Rachita desbloqueada! 🎁</div>
+
+            <!-- Contenedor horizontal de esferas + contador -->
+            <div style="display:flex; align-items:center; gap:15px;">
+                <div id="esferasRachita" style="display:flex; flex-wrap:wrap; gap:10px;">
+    `;
+
+    for (let i = 1; i <= 10; i++) {
+        html += `
+            <div class="esferaRachita" id="rachita_sem${i}" style="
+                width:60px;
+                height:60px;
+                background-color:#b0b0b0;
+                border-radius:50%;
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                flex-direction:column;
+                font-family:'Poppins',sans-serif;
+                font-weight:600;
+                color:white;
+                font-size:13px;
+                box-shadow:0 2px 5px rgba(0,0,0,0.2);
+                position:relative;
+            ">
+                <div style="font-size:11px;">Desafío ${i}</div>
+                <div style="font-size:8px;">Semana ${i + 41}</div>
+                <img class="iconoCumplimiento" src="" style="
+                    position:absolute;
+                    top:-10px;
+                    width:35px;
+                    height:35px;
+                    display:none;
+                ">
+            </div>
+        `;
+    }
+
+    html += `
+                </div>
+                <!-- Contador al lado -->
+                <div id="contadorRachita" style="
+                    font-family:'Poppins',sans-serif;
+                    font-weight:700;
+                    font-size:30px;
+                    color:#ff7300;
+                    text-align:center;
+                    white-space:nowrap;
+                ">= 0 / 7</div>
+            </div>
+        </div>
+    `;
+
+    $('#contenedorBloque').after(html);
+}
+
+function actualizarEsferasRachita(valor) {
+    for (let i = 1; i <= 10; i++) {  // suponiendo que la rachita tiene 7 esferas
+        const esfera = $(`#rachita_sem${i}`);
+        const icono = esfera.find('.iconoCumplimiento');
+
+        if (i <= valor) {
+            // Semana cumplida
+            esfera.css('background-color', '#ff7300');
+            icono.attr('src', 'rachita.png').show();
+        } else {
+            // Semana no cumplida
+            esfera.css('background-color', 'lightblue');
+            icono.attr('src', 'congelada.png').show();
+        }
+    }
+
+    // Actualizar contador al lado
+    $('#contadorRachita').text(`= ${valor} / 7`);
+}
+// Agregar animación CSS
+const style = document.createElement('style');
+style.textContent = `
+@keyframes aparecer {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fuego {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}`;
+document.head.appendChild(style);
+
+let semanaIngreso;
+let numsem;
+
+function obtenerSemanaIngreso(movil) {
+    // 🔹 Filtramos las filas donde la columna D (índice 3) coincide con el móvil
+    const filasMovil = rawData.slice(1).filter(r => String(r[3]).trim() === movil);
+    if (filasMovil.length === 0) return null;
+
+    // 🔹 De esas filas, tomamos la columna B (índice 1) que contiene la semana
+    const semanasMovil = filasMovil
+        .map(r => parseInt(String(r[1]).replace(/\D/g, ""))) // “SEM.36” → 36
+        .filter(n => !isNaN(n));
+
+    return Math.min(...semanasMovil); // 🔹 Semana mínima del conductor
+}
+
+
 
 
 $(document).ready(function(){
@@ -132,10 +342,14 @@ $(document).ready(function(){
         .catch(err=>{ console.error(err); alert('Error cargando data.xlsx: '+err.message); });
 
     function setupTableAndFilters(rows) {
+        if (rows[0][0] && rows[0][0].toLowerCase().includes('estado'))
+        {
+        rows = rows.map(r => r.slice(1)); // quita la primera columna
+        }
         const headers = rows[0].map(h => h===null?"":h);
         const thead = $('#theadRow'); thead.empty();
         
-        const allowedHeaders = ['Estado', 'Semana', 'Móvil', 'FLOTA', 'Servicios', 'Meta', 'Diferencia'];
+        const allowedHeaders = ['Móvil','Semana', 'Cumplimiento', 'Servicios', 'Meta', 'Diferencia'];
         
         const headerIndexes = {};
         const displayHeaders = [];
@@ -150,6 +364,7 @@ $(document).ready(function(){
         const tbody = $('#tbodyRows'); tbody.empty();
         for(let i=1;i<rows.length;i++){
             let tr='<tr>';
+            let diferenciaVal = parseFloat(rows[i][headers.indexOf('Diferencia')]) || 0;
             displayHeaders.forEach(h => {
                 const originalIndex = headers.indexOf(h);
                 let cell = rows[i][originalIndex] === undefined ? '' : rows[i][originalIndex];
@@ -160,178 +375,437 @@ $(document).ready(function(){
                     else if (val < 0) cell = cell + ' <span class="diff-negative">▼</span>';
                     else cell = cell + ' <span class="diff-positive">▲</span>';
                 }
+
+                if (normalize(h) === 'cumplimiento') {
+                    if (diferenciaVal < 0) {
+                        cell = `<span style="color:red; font-weight:bold;">No cumple</span>`;
+                    } else if (diferenciaVal >= 0){
+                        cell = `<span style="color:#007bff; font-weight:bold;">Cumple</span>`;
+                    } else {
+                        cell = `<span style="color:gray;">—</span>`;
+                    }
+                    }
                 tr += '<td>'+cell+'</td>';
             });
             tr+='</tr>'; 
             tbody.append(tr);
         }
 
-        if(dataTable) dataTable.destroy();
-        dataTable = $('#dataTable').DataTable({ responsive:false, scrollX:true, pageLength:25, lengthMenu:[10,25,50,100], order:[] });
+        
+        const displayNorm = displayHeaders.map(h => normalize(h));
 
-        const headerNorm = headers.map(h => normalize(h));
-        function idxOf(names){ for(const nm of names){ const target = normalize(nm); const idx = headerNorm.findIndex(hn => hn===target||hn.includes(target)||target.includes(hn)); if(idx!==-1) return idx; } return -1; }
 
-        idxSemana = idxOf(['Semana','semana']);
-        idxFlota = idxOf(['FLOTA','Flota','flota']);
-        idxMovil = idxOf(['Móvil','Movil','MOVIL','movil']);
-        idxServicios = idxOf(['Servicios','servicios']);
-        idxMeta = idxOf(['Meta','meta']);
+        function idxDisplayOf(names) {
+            for (const nm of names) {
+                const target = normalize(nm);
+                const idx = displayHeaders.findIndex(h => {
+                    const hn = normalize(h);
+                    return hn === target || hn.includes(target) || target.includes(hn);
+                });
+                if (idx !== -1) return idx;
+            }
+            return -1;
+        }
 
-        function uniqueValuesAt(idx){ if(idx<0) return []; const s=new Set(); for(let i=1;i<rows.length;i++) s.add(String(rows[i][idx]??'').trim()); return Array.from(s).filter(x=>x!=='').sort((a,b)=>a.localeCompare(b+'')); }
-        const semanas = uniqueValuesAt(idxSemana), flotas = uniqueValuesAt(idxFlota);
-        const $fSemana=$('#filterSemana'), $fFlota=$('#filterFlota');
-        $fSemana.empty().append('<option value="">Semana: Todas</option>');
-        $fFlota.empty().append('<option value="">FLOTA: Todas</option>');
+idxSemana = idxDisplayOf(['Semana']);
+idxMovil = idxDisplayOf(['Móvil', 'Movil']);
+idxServicios = idxDisplayOf(['Servicios']);
+idxMeta = idxDisplayOf(['Meta']);
+idxCump = idxDisplayOf(['Cumplimiento']);
+idxDiferencia = idxDisplayOf(['Diferencia']);
+const idxFlotaExcel = headers.findIndex(h => normalize(h) === 'flota');
+if ($.fn.DataTable.isDataTable('#tabla')) {
+    $('#tabla').DataTable().clear().destroy();
+}   
+if(dataTable) dataTable.destroy();
+let orderOption = [];
+if (idxSemana >= 0) {
+    orderOption = [[idxSemana, 'desc']];
+}
+$('#dataTable thead th').eq(1).text('Estado');
+$('#dataTable thead th').eq(3).text('S. Realizados');
+dataTable = $('#dataTable').DataTable(
+    {   
+        responsive:false,
+        scrollX:true,
+        paging: false,
+        info: false,
+        lengthChange: false,
+        pageLength:25,
+        order:[[idxSemana, 'desc']]
+    });
+    function uniqueValuesAt(idx)
+    { 
+        if(idx<0) return []; const s=new Set(); for(let i=1;i<rows.length;i++) s.add(String(rows[i][idx]??'').trim()); return Array.from(s).filter(x=>x!=='').sort((a,b)=>a.localeCompare(b+'')); }
+        const semanas = uniqueValuesAt(idxSemana);
+        const $fSemana=$('#filterSemana');
+        $fSemana.empty().append('<option value=""> Todas </option>');
         semanas.forEach(v=>$fSemana.append(`<option value="${v}">${v}</option>`));
-        flotas.forEach(v=>$fFlota.append(`<option value="${v}">${v}</option>`));
-
         function applyFilters(){
-            if(idxSemana>=0){ const val=$('#filterSemana').val(); dataTable.column(idxSemana).search(val?'^'+escapeRegex(val)+'$':'',true,false); }
-            if(idxFlota>=0){ const val=$('#filterFlota').val(); dataTable.column(idxFlota).search(val?'^'+escapeRegex(val)+'$':'',true,false); }
-            
+            if (idxSemana >= 0){ 
+                const val = $fSemana.val(); 
+                dataTable.column(idxSemana).search(val ? '^'+escapeRegex(val)+'$' : '', true, false);
+            }
             dataTable.draw();
             updateChartServicios();
+    }
+    $('#filterSemana').on('change',applyFilters);
+    /* $('#clearFilters').on('click',()=>{ $fSemana.val(''); applyFilters(); }); */
+    $('#searchButton').on('click', function() {
+        const mv = $('#filterMovil').val();
+        if (mv) {
+            $('#contentContainer').show();
+
+            let semanasRachita = [];
+            if (!$('#contenedorWrap').length) {
+            $('#contentContainer').prepend(`
+                <div id="contenedorWrap" style="
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    gap:20px;
+                    margin-bottom:20px;
+                    margin-top:20px;
+                    padding:6px 0;
+                    border-radius:8px;
+                    box-shadow:0 4px 8px rgba(0,0,0,0.2);
+                    background:white;
+                    font-family:'Poppins',sans-serif;
+                    font-weight:700;
+                    font-size:30px;
+                    color:#007bff;
+                    text-align:center;
+                ">
+                </div>
+            `);
         }
-
-        $('#filterSemana,#filterFlota').on('change',applyFilters);
-        $('#clearFilters').on('click',()=>{ $('#filterSemana,#filterFlota').val(''); applyFilters(); });
-
-
-        $('#searchButton').on('click', function() {
-            const mv = $('#filterMovil').val();
-            if (mv) {
-                // Muestra el contenido
-                $('#contentContainer').show();
-
-                // Filtra la tabla y actualiza
-                dataTable.column(idxMovil).search('^' + escapeRegex(mv) + '$', true, false, true);
-                dataTable.draw();
-                updateChartServicios();
-            } else {
-                alert('Por favor, ingrese un número de móvil.');
-            }
-        });
-        
-        // Agregamos el evento de ordenamiento a la tabla
-        dataTable.on('order.dt', function() {
-            updateChartServicios();
-        });
-
-        function updateChartServicios(){
-            const filteredData = dataTable.rows({search:'applied', order:'applied'}).data().toArray();
-            
-            const groupedData = {};
-            filteredData.forEach(row => {
-                const key = `${row[idxFlota]} | SEM.${row[idxSemana]}`;
-                
-                if (!groupedData[key]) {
-                    groupedData[key] = {
-                        servicios: 0,
-                        metas: [],
-                        originalOrder: -1 // Guardamos el orden original para mantenerlo
-                    };
+        if (!$('#contenedorEsferas').length) {
+            let esferasHTML = '<div id="contenedorEsferas" style="display:flex;justify-content:center;flex-wrap:wrap;gap:10px;margin-bottom:20px;">';
+                for (let i = 1; i <= 15; i++) {
+                    esferasHTML += `
+                    <div class="esfera" id= "sem${i}" style="
+                    width:60px;
+                    height:60px;
+                    background-color:#b0b0b0;
+                    border-radius:50%;
+                    display:flex;
+                    align-items:center;
+                    justify-content:center;
+                    flex-direction: column;
+                    font-family:'Poppins',sans-serif;
+                    font-weight:600;
+                    color:white;
+                    font-size:13px;
+                    box-shadow:0 2px 5px rgba(0,0,0,0.2);
+                    position:relative;
+                    ">
+                    <div style="font-size:11px;">Desafío ${i}</div>
+                    <div style="font-size:8px;font-weight:2px;">Semana ${i + 35}</div>
+                    <img class="iconoCumplimiento" src="" style="
+                    position:absolute;
+                    top:-10px;
+                    width:35px;
+                    height:35px;
+                    display:none;
+                    ">
+                    </div>
+                    `;
                 }
-                groupedData[key].servicios += parseFloat(row[idxServicios] ?? 0);
-                groupedData[key].metas.push(parseFloat(row[idxMeta] ?? 0));
-            });
-            
-            // Obtenemos los datos ordenados del DataTables
-            const labels = dataTable.rows({search:'applied', order:'applied'}).data().toArray().map(row => `${row[idxFlota]} | SEM.${row[idxSemana]}`);
-            const uniqueLabels = [...new Set(labels)]; // Eliminamos duplicados
-            
-            // Reordenamos los datos para el gráfico según el nuevo orden de la tabla
-            const servicios = uniqueLabels.map(key => groupedData[key]?.servicios ?? 0);
-            const promedioMetas = uniqueLabels.map(key => {
-                const metas = groupedData[key]?.metas ?? [];
-                const sum = metas.reduce((a, b) => a + b, 0);
-                return metas.length > 0 ? sum / metas.length : 0;
-            });
+                esferasHTML += '</div>';
+                
+                $('#contenedorWrap').after(esferasHTML);
+                $('#contenedorEsferas').after(`
+                <div id="contadorRacha" style="
+                font-family:'Poppins',sans-serif;
+                font-weight:700;
+                font-size:35px;
+                color:#007bff;
+                margin-left:20px;
+                align-self:center;
+                margin-top:-20px;
+                ">
+                = 0/15
+                </div>
+                `);
+                 $('#contenedorEsferas, #contadorRacha').wrapAll(`
+                <div id="contenedorBloque" style="
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    gap:20px;
+                    margin-bottom:20px;
+                "></div>
+            `);
+            }
+            else 
+            {
+                $('.esfera').css('background-color', '#b0b0b0');
+                $('[id^=icon]').hide(); 
+            }
+            // Filtra la tabla y actualiza
+            dataTable.column(idxMovil).search('^' + escapeRegex(mv) + '$', true, false);
+            dataTable.draw();
+            updateChartServicios();
+            const rowsData = dataTable.rows({ search: 'applied' }).data().toArray();
+            if(rowsData.length > 0){
+                const ultimaFila = rawData.slice(1).reverse().find(r => String(r[3]).trim() === mv);
+                const flota = ultimaFila ? ultimaFila[4] : '—';
+                const estado = ultimaFila ? String(ultimaFila[2]).trim() : '—';
+                const semanaIngreso = obtenerSemanaIngreso(mv);
 
+                const hoy = new Date();
+                const inicioAno = new Date(hoy.getFullYear(), 0, 1);
+                const dias = Math.floor((hoy - inicioAno) / (24 * 60 * 60 * 1000));
+                const semanaActual = Math.ceil((dias + inicioAno.getDay() + 1) / 7);
+                numsem = semanaActual - semanaIngreso;
 
-            const ctx = document.getElementById('chartServicios').getContext('2d');
-            if(chartServicios) chartServicios.destroy();
+                $('#labelFlota').text('Flota: ' + flota);
+                let mensajeflota = '';
+                let titulo = '';
+                let subtitulo = '';
+                let imagen = '';
+                let semanasCumplidas = 0;
+                let semanasTotales = 0;
+                
+                /*const enRachita = numsem - semanasCumplidas >= 4; */
 
-            Chart.register(ChartDataLabels);
-
-            chartServicios = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: uniqueLabels,
-                    datasets: [
-                        { 
-                            type:'bar', 
-                            label:'Suma de Servicios', 
-                            data: servicios, 
-                            backgroundColor:'#D3D3D3', 
-                            order: 2, 
-                            datalabels: {
-                                align: 'end',
-                                anchor: 'start',
-                                formatter: (value) => {
-                                    return value.toFixed(0); 
-                                }
-                            }
-                        },
-                        { 
-                            type:'line', 
-                            label:'Promedio de Meta', 
-                            data: promedioMetas, 
-                            borderColor:'#76FF03', 
-                            backgroundColor:'#76FF03', 
-                            borderWidth: 3, 
-                            fill:false, 
-                            pointRadius: 5, 
-                            pointStyle: 'circle', 
-                            order: 1, 
-                            datalabels: {
-                                align: 'end',
-                                anchor: 'end',
-                                formatter: (value) => {
-                                    return value.toFixed(0); 
-                                }
-                            }
+                rowsData.forEach(row => {
+                    const semanaRaw = String(row[idxSemana] || '').trim();
+                    let diferenciaRaw = row[idxDiferencia];
+                    diferenciaRaw = String(diferenciaRaw).replace(/<[^>]*>/g, '').trim();
+                    const match = semanaRaw.match(/\d+/);
+                    const semanaNum = match ? parseInt(match[0]) : null;
+                    const diferencia = parseFloat(diferenciaRaw);
+                    const numEsfera = semanaNum ? semanaNum - 35 : null;
+                    
+                    if (numEsfera >= 1 && numEsfera <= 15) 
+                    {
+                        const esfera = $(`#sem${numEsfera}`);
+                        const icono = esfera.find('.iconoCumplimiento');
+                        if (diferencia >= 0)
+                        {
+                            esfera.css('background-color', '#ff7300');
+                            icono.attr('src', 'racha.png').show();
+                            semanasCumplidas++;
                         }
-                    ]
-                },
-                options: {
-                    responsive:true,
-                    maintainAspectRatio:false,
-                    interaction: { mode:'index', intersect:false },
-                    plugins:{ 
-                        legend:{ display:true },
-                        tooltip: { 
-                            callbacks: {
-                                label: (context) => {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    label += context.parsed.y.toFixed(0);
-                                    return label;
-                                }
-                            }
-                        }
-                    },
-                    scales:{ 
-                        x: {
-                            ticks: {
-                                maxRotation: 45,
-                                minRotation: 45
-                            }
-                        },
-                        y:{ 
-                            beginAtZero:true, 
-                            title:{ display:true, text:'Cantidad' },
-                            max: Math.max(...servicios, ...promedioMetas) * 1.2,
+                        else
+                        {
+                            esfera.css('background-color', 'lightblue');
+                            icono.attr('src', 'congelada.png').show();
                         }
                     }
+
+
+                    if (semanasCumplidas === numsem)
+                    {
+                    titulo = '¡La estás rompiendo, sigue así!';
+                    imagen = 'racha.png';
+                    subtitulo = 'Desafíos de racha:';
+                    switch(flota)
+                    {
+                        case 'Aeropuerto':
+                        case 'AEROPUERTO':
+                            mensajeflota = 'Realiza 06 servicios Aeropuerto de Jueves a Domingo entre las 4pm a 11:59pm.';
+                            break;
+                        case 'Urbano':
+                        case 'URBANO':
+                            mensajeflota = 'Realiza 08 servicios de Lunes a Viernes en Ciudad entre 5am a 9am o 5pm a 9pm.';
+                            break;
+                        case 'Latam':
+                        case 'JetSmart':
+                        case 'Sky':
+                        case 'LATAM':
+                        case 'JETSMART':
+                        case 'SKY':
+                            mensajeflota = 'Realiza 20 servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
+                            break;
+                        case 'Jockey Plaza':
+                        case 'Bellavista':
+                        case 'JOCKEY PLAZA':
+                        case 'BELLAVISTA':
+                            mensajeflota = 'Realiza 06 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto de Jueves a Domingo entre las 4pm y 12am.<br>- Servicios en Ciudad entre las 5am y 9am o 5pm a 9pm.<br>- Servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
+                            break;
+                        default:
+                            mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
+                    }
+                } 
+                else 
+                {
+                    titulo = 'Necesitas restablecer tu racha';
+                    imagen = 'congelada.png';
+                    subtitulo = 'Desafíos de restablecimiento:';
+                    switch(flota)
+                    {
+                        case 'Aeropuerto':
+                        case 'AEROPUERTO':
+                            mensajeflota = 'Realiza 02 servicios Aeropuerto el viernes y domingo de 4am a 12pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            break;
+                        case 'Urbano':
+                        case 'URBANO':
+                            mensajeflota = 'Realiza 02 servicios este viernes en Ciudad entre las 5am a 9am o 5pm a 9pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            break;
+                        case 'Latam':
+                        case 'JetSmart':
+                        case 'Sky':
+                        case 'LATAM':
+                        case 'JETSMART':
+                        case 'SKY':
+                            mensajeflota = 'Realiza 02 servicios Aerolíneas (LATAM, SKY o JETSMART) el viernes y domingo de 4am a 12pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            break;
+                        case 'Jockey Plaza':
+                        case 'Bellavista':
+                        case 'JOCKEY PLAZA':
+                        case 'BELLAVISTA':
+                            mensajeflota = 'Realiza 02 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto el viernes y domingo de 4am a 12pm.<br>- Servicios este viernes en Ciudad entre las 5am a 9am o 5pm a 9pm.<br>- Servicios Aerolíneas (LATAM, SKY o JETSMART) el viernes y domingo de 4am a 12pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            break;
+                        default:
+                            mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
+                    }
                 }
-            });
+                }
+            );
+            let semanaInicioRachita = null;
+            if (semanasRachita.length > 0)
+            {
+                semanaInicioRachita = Math.min(...semanasRachita);
+            } 
+            else 
+            {
+                console.log("Aún no hay rachita activa.");
+            }
+
+            let semanasCumplidasDesdeRachita = 0;
+if (semanaInicioRachita) {
+    rowsData.forEach(row => {
+         const semanaRaw = String(row[idxSemana] || '').trim();
+                    let diferenciaRaw = row[idxDiferencia];
+                    diferenciaRaw = String(diferenciaRaw).replace(/<[^>]*>/g, '').trim();
+                    const match = semanaRaw.match(/\d+/);
+                    const semanaNum = match ? parseInt(match[0]) : null;
+                    const diferencia = parseFloat(diferenciaRaw);
+                    const numEsfera = semanaNum ? semanaNum - 35 : null;
+
+        if (semanaNum >= 41 && diferencia >= 0) {
+            semanasCumplidasDesdeRachita++;
         }
+    });
+}
+                
+                $('#bloqueGeneral').remove();
+
+                const footerHTML = `
+                <div id="bloqueGeneral" style="display:flex; justify-content:space-between; align-items:flex-start; margin-top:30px; font-family:'Poppins', sans-serif;">
+                <div id="bloqueMensaje" style="text-align:left; margin-top:10px; font-family:'Poppins', sans-serif;">
+                    <div style="display:flex; justify-content:flex-start; align-items:center; gap:10px; font-size:26px; font-weight:700; color:#ff0000;">
+                        <img src="${imagen}" style="width:100px; height:100px; margin-top:-5px;">
+                        ${titulo}
+                        </div>
+                        
+                        <div style="font-weight:bold; font-size:16px; margin-top:-5px;margin-left:110px;">${subtitulo}</div>
+                        <div style="margin-top:5px; font-size:14px;margin-left:110px;">${mensajeflota} ${semanaInicioRachita}</div>
+                </div>
+                <div id="bloqueImagenes1" style="display:flex; flex-direction:column; align-items:center; gap:10px; margin-right:10px;">
+                    <img src="canasta.png" style="width:150px; height:150px;display:inline-block;transform: rotate(-30deg);">
+                </div>
+                <div id="bloqueImagenes2" style="display:flex; flex-direction:column; align-items:center; gap:10px; margin-right:10px;">
+                    <img src="vale.png" style="width:150px; height:150px;display:inline-block;">
+                </div>
+                </div>`;
+                if ($('#bloqueMensaje').length)
+                {
+                    $('#bloqueMensaje').replaceWith(footerHTML);
+                } 
+                else 
+                {
+                    $('#contentContainer').append(footerHTML);
+                }
+
+                $('#contadorRacha').text(`= ${semanasCumplidas} / 15`);
+                $('#mensajeRacha').remove();
+                const filas = $('#dataTable tbody tr');
+
+                if (filas.length > 0) {
+                    const ultimaFila = filas.first(); 
+                    const estado = ultimaFila.find('td').eq(idxCump).text().trim();
+                    let mensajeHTML = "";
+                    const semanasFaltantes = numsem - semanasCumplidas;
+                    if (semanasCumplidas === numsem)
+                    {
+                        mensajeHTML = `<div id="mensajeRacha" style="
+                        text-align:center;
+                        color:#ff7300;
+                        font-weight:bold;
+                        font-family:'Poppins',sans-serif;
+                        margin-top:15px;
+                        font-size:30px;
+                        ">🔥 TU RACHA SIGUE ACTIVA 🔥</div>`;
+                    }
+                    else if (semanasFaltantes>=4)
+                    {
+                        mensajeHTML = `<div id="mensajeRacha" style="
+                        text-align:center;
+                        color:#ff7300;
+                        font-weight:bold;
+                        font-family:'Poppins',sans-serif;
+                        margin-top:15px;
+                        font-size:30px;
+                        "> Pasaste a Rachita, ¡no te desanimes! 🔥</div>`;
+                    }
+                    else
+                    {
+                        mensajeHTML = `<div id="mensajeRacha" style="
+                        text-align:center;
+                        color:#03A9F4;
+                        font-weight:bold;
+                        font-family:'Poppins',sans-serif;
+                        margin-top:15px;
+                        font-size:30px;
+                        ">❄️ ¡RACHA CONGELADA! ❄️</div>`;
+                    }
+
+                    $('#mensajeRacha').remove();
+                    $('#contenedorWrap').html(mensajeHTML);
+
+                    if (semanasCumplidas === numsem)
+                    {
+                        $('#contenedorWrap').show();
+                        $('#contenedorBloque').show();
+                        mostrarEstadoRacha(true);
+                        $('#contenedorRachita').remove(); 
+                    } 
+                    else if (semanasFaltantes >=4)
+                    {
+                        $('#contenedorWrap').hide(); 
+                        $('#contenedorBloque').hide();
+                        mostrarEstadoRacha('rachita')
+                        crearRachitaDebajo();
+                        actualizarEsferasRachita(semanasCumplidasDesdeRachita);
+                    }
+                    else
+                    {
+                        $('#contenedorWrap').show();
+                        $('#contenedorBloque').show();
+                        mostrarEstadoRacha(false);
+                        $('#contenedorRachita').remove(); 
+                    }
+                }
+            }
+            else 
+            {
+                alert('Por favor, ingrese un número de móvil.');
+            }
+        }
+    });
+    dataTable.on('order.dt', function()
+    {
+        updateChartServicios();
+    })
+    ;
+    function updateChartServicios(){
+
     }
+}
 });
 </script>
-
 </body>
 </html>
