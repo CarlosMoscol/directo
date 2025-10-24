@@ -227,7 +227,7 @@ function crearRachitaDebajo() {
 
     for (let i = 1; i <= 10; i++) {
         html += `
-            <div class="esferaRachita" id="rachita_sem${i}" style="
+            <div class="esferaRachita" id="rachita_sem${i+41}" style="
                 width:60px;
                 height:60px;
                 background-color:#b0b0b0;
@@ -274,24 +274,31 @@ function crearRachitaDebajo() {
     $('#contenedorBloque').after(html);
 }
 
-function actualizarEsferasRachita(valor) {
-    for (let i = 1; i <= 10; i++) {  // suponiendo que la rachita tiene 7 esferas
+function actualizarEsferasRachita(lista_semana,lista_diferencia) {
+    const semanaInicio = lista_semana[0];
+    const semanaFin = lista_semana[lista_semana.length - 1];
+    let cumplida = 0;
+    let j =0;
+    for (let i = semanaInicio; i <= semanaFin; i++) {  
         const esfera = $(`#rachita_sem${i}`);
         const icono = esfera.find('.iconoCumplimiento');
 
-        if (i <= valor) {
+        if (lista_diferencia[j]>=0) {
             // Semana cumplida
-            esfera.css('background-color', '#ff7300');
+            esfera.css('background-color', '#FFD700');
             icono.attr('src', 'rachita.png').show();
-        } else {
+            cumplida++;
+        } else 
+        {
             // Semana no cumplida
             esfera.css('background-color', 'lightblue');
             icono.attr('src', 'congelada.png').show();
         }
+        j++;
     }
 
     // Actualizar contador al lado
-    $('#contadorRachita').text(`= ${valor} / 7`);
+    $('#contadorRachita').text(`= ${cumplida} / 7`);
 }
 // Agregar animación CSS
 const style = document.createElement('style');
@@ -566,10 +573,12 @@ dataTable = $('#dataTable').DataTable(
                 let imagen = '';
                 let semanasCumplidas = 0;
                 let semanasTotales = 0;
-                
+                let semanasNO = 0;
+                let semanaInicioRachita = 0;
+                let semanaRachitaCumplidas = 0;
                 /*const enRachita = numsem - semanasCumplidas >= 4; */
 
-                rowsData.forEach(row => {
+                for (const row of [...rowsData].reverse()) {
                     const semanaRaw = String(row[idxSemana] || '').trim();
                     let diferenciaRaw = row[idxDiferencia];
                     diferenciaRaw = String(diferenciaRaw).replace(/<[^>]*>/g, '').trim();
@@ -591,13 +600,21 @@ dataTable = $('#dataTable').DataTable(
                         else
                         {
                             esfera.css('background-color', 'lightblue');
-                            icono.attr('src', 'congelada.png').show();
+                            icono.attr('src', 'congelada.png').show();;
+                            semanasNO++;
+                            if (semanasNO === 4)
+                            {
+                                semanaInicioRachita = semanaNum;
+                                break;
+                            }
                         }
+
                     }
+                };
 
-
-                    if (semanasCumplidas === numsem)
-                    {
+                    
+                if (semanasCumplidas === numsem && (semanaInicioRachita === 0 || semanaInicioRachita === ""))
+                {
                     titulo = '¡La estás rompiendo, sigue así!';
                     imagen = 'racha.png';
                     subtitulo = 'Desafíos de racha:';
@@ -629,7 +646,7 @@ dataTable = $('#dataTable').DataTable(
                             mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
                     }
                 } 
-                else 
+                else if (semanasCumplidas <= numsem && (semanaInicioRachita === 0 || semanaInicioRachita === ""))
                 {
                     titulo = 'Necesitas restablecer tu racha';
                     imagen = 'congelada.png';
@@ -661,35 +678,66 @@ dataTable = $('#dataTable').DataTable(
                         default:
                             mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
                     }
+                    
                 }
+                 else if (semanaInicioRachita !== 0)
+                {
+                    titulo = 'Necesitas restablecer tu rachita';
+                    imagen = 'congelada.png';
+                    subtitulo = 'Desafíos de restablecimiento:';
+                    switch(flota)
+                    {
+                        case 'Aeropuerto':
+                        case 'AEROPUERTO':
+                            mensajeflota = 'Realiza 02 servicios Aeropuerto el viernes y domingo de 4am a 12pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            break;
+                        case 'Urbano':
+                        case 'URBANO':
+                            mensajeflota = 'Realiza 02 servicios este viernes en Ciudad entre las 5am a 9am o 5pm a 9pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            break;
+                        case 'Latam':
+                        case 'JetSmart':
+                        case 'Sky':
+                        case 'LATAM':
+                        case 'JETSMART':
+                        case 'SKY':
+                            mensajeflota = 'Realiza 02 servicios Aerolíneas (LATAM, SKY o JETSMART) el viernes y domingo de 4am a 12pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            break;
+                        case 'Jockey Plaza':
+                        case 'Bellavista':
+                        case 'JOCKEY PLAZA':
+                        case 'BELLAVISTA':
+                            mensajeflota = 'Realiza 02 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto el viernes y domingo de 4am a 12pm.<br>- Servicios este viernes en Ciudad entre las 5am a 9am o 5pm a 9pm.<br>- Servicios Aerolíneas (LATAM, SKY o JETSMART) el viernes y domingo de 4am a 12pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            break;
+                        default:
+                            mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
+                    }
+                    
                 }
-            );
-            let semanaInicioRachita = null;
-            if (semanasRachita.length > 0)
-            {
-                semanaInicioRachita = Math.min(...semanasRachita);
-            } 
-            else 
-            {
-                console.log("Aún no hay rachita activa.");
-            }
+                
+                
+                if (semanaInicioRachita < 42 & semanaInicioRachita !== null)
+                    {
+                        semanaInicioRachita = 42;
+                    }
+                let semanasrachita = [];
+                let semanasdiferencia = [];
+                if (semanaInicioRachita !== null) {
+                    for (const row of [...rowsData].reverse()) {
+                        const semanaRaw = String(row[idxSemana] || '').trim();
+                        let diferenciaRaw = row[idxDiferencia];
+                        diferenciaRaw = String(diferenciaRaw).replace(/<[^>]*>/g, '').trim();
+                        const match = semanaRaw.match(/\d+/);
+                        const semanaNum = match ? parseInt(match[0]) : null;
+                        const diferencia = parseFloat(diferenciaRaw);
+                        if (semanaNum >= semanaInicioRachita) {
+                            semanasrachita.push(semanaNum);
+                            semanasdiferencia.push(diferencia);
+                        }
+                    }
+                }
+                
 
-            let semanasCumplidasDesdeRachita = 0;
-if (semanaInicioRachita) {
-    rowsData.forEach(row => {
-         const semanaRaw = String(row[idxSemana] || '').trim();
-                    let diferenciaRaw = row[idxDiferencia];
-                    diferenciaRaw = String(diferenciaRaw).replace(/<[^>]*>/g, '').trim();
-                    const match = semanaRaw.match(/\d+/);
-                    const semanaNum = match ? parseInt(match[0]) : null;
-                    const diferencia = parseFloat(diferenciaRaw);
-                    const numEsfera = semanaNum ? semanaNum - 35 : null;
-
-        if (semanaNum >= 41 && diferencia >= 0) {
-            semanasCumplidasDesdeRachita++;
-        }
-    });
-}
                 
                 $('#bloqueGeneral').remove();
 
@@ -702,7 +750,7 @@ if (semanaInicioRachita) {
                         </div>
                         
                         <div style="font-weight:bold; font-size:16px; margin-top:-5px;margin-left:110px;">${subtitulo}</div>
-                        <div style="margin-top:5px; font-size:14px;margin-left:110px;">${mensajeflota} ${semanaInicioRachita}</div>
+                        <div style="margin-top:5px; font-size:14px;margin-left:110px;">${mensajeflota}</div>
                 </div>
                 <div id="bloqueImagenes1" style="display:flex; flex-direction:column; align-items:center; gap:10px; margin-right:10px;">
                     <img src="canasta.png" style="width:150px; height:150px;display:inline-block;transform: rotate(-30deg);">
@@ -779,7 +827,7 @@ if (semanaInicioRachita) {
                         $('#contenedorBloque').hide();
                         mostrarEstadoRacha('rachita')
                         crearRachitaDebajo();
-                        actualizarEsferasRachita(semanasCumplidasDesdeRachita);
+                        actualizarEsferasRachita(semanasrachita,semanasdiferencia)
                     }
                     else
                     {
