@@ -54,7 +54,57 @@
         .hidden-content {
             display: none;
         }
-    </style>
+    @media (max-width: 768px) {
+      #contenedorBloque {
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      #contadorRacha {
+        font-size: 25px !important;
+        margin-top: 0 !important;
+      }
+
+      .esfera {
+        width: 45px !important;
+        height: 45px !important;
+        font-size: 9px !important;
+      }
+
+      .esfera > div {
+        font-size: 8px !important;
+      }
+
+      .esfera .iconoCumplimiento {
+        width: 25px !important;
+        height: 25px !important;
+        top: -6px !important;
+      }
+    }
+
+    /* 📱 En celulares muy chicos */
+    @media (max-width: 480px) {
+      .esfera {
+        width: 35px !important;
+        height: 35px !important;
+        font-size: 7px !important;
+      }
+
+      .esfera > div {
+        display: none; /* 🔹 Oculta textos internos para no deformar */
+      }
+
+      .esfera .iconoCumplimiento {
+        width: 20px !important;
+        height: 20px !important;
+        top: -4px !important;
+      }
+
+      #contadorRacha {
+        font-size: 22px !important;
+      }
+    }
+  </style>
 </head>
 <body>
 
