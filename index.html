@@ -104,6 +104,177 @@
         font-size: 22px !important;
       }
     }
+        @media (max-width: 768px) {
+  #popupRacha > div {
+    width: 90% !important;
+    padding: 25px 20px !important;
+    border-radius: 20px !important;
+  }
+
+  #popupRacha img {
+    width: 120px !important;
+    margin-bottom: 15px !important;
+  }
+
+  #popupRacha h2 {
+    font-size: 24px !important;
+  }
+
+  #popupRacha p {
+    font-size: 14px !important;
+  }
+
+  #popupRacha button {
+    font-size: 14px !important;
+    padding: 8px 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #popupRacha > div {
+    width: 95% !important;
+    padding: 20px 15px !important;
+  }
+
+  #popupRacha img {
+    width: 100px !important;
+  }
+
+  #popupRacha h2 {
+    font-size: 20px !important;
+  }
+
+  #popupRacha p {
+    font-size: 12px !important;
+  }
+
+  #popupRacha button {
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+}
+       @media (max-width: 768px) {
+  #contenedorRachita {
+    gap: 8px !important;
+  }
+
+  #tituloRachita {
+    font-size: 22px !important;
+  }
+
+  #esferasRachita {
+    gap: 8px !important;
+    justify-content: center !important;
+  }
+
+  .esferaRachita {
+    width: 45px !important;
+    height: 45px !important;
+    font-size: 10px !important;
+  }
+
+  /* 🔹 Texto interno de las esferas */
+  .esferaRachita div:nth-child(1) {
+    font-size: 9px !important;
+  }
+
+  .esferaRachita div:nth-child(2) {
+    font-size: 7px !important;
+  }
+
+  .esferaRachita .iconoCumplimiento {
+    width: 25px !important;
+    height: 25px !important;
+    top: -6px !important;
+  }
+
+  #contadorRachita {
+    font-size: 22px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #tituloRachita {
+    font-size: 18px !important;
+  }
+
+  .esferaRachita {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .esferaRachita div:nth-child(1) {
+    font-size: 8px !important;
+  }
+
+  .esferaRachita div:nth-child(2) {
+    font-size: 6px !important;
+  }
+
+  #contadorRachita {
+    font-size: 18px !important;
+  }
+}
+        @media (max-width: 768px) {
+  #bloqueGeneral {
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  #bloqueMensaje {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  #bloqueMensaje div {
+    justify-content: center !important;
+    text-align: center !important;
+  }
+
+  #bloqueMensaje img {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  #bloqueMensaje div[style*="font-size:26px"] {
+    font-size: 20px !important;
+  }
+
+  #bloqueMensaje div[style*="font-size:16px"] {
+    font-size: 14px !important;
+    margin-left: 0 !important;
+  }
+
+  #bloqueMensaje div[style*="font-size:14px"] {
+    font-size: 12px !important;
+    margin-left: 0 !important;
+  }
+
+  #bloqueImagenes1 img,
+  #bloqueImagenes2 img {
+    width: 100px !important;
+    height: 100px !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  #bloqueMensaje img {
+    width: 60px !important;
+    height: 60px !important;
+  }
+
+  #bloqueMensaje div[style*="font-size:26px"] {
+    font-size: 18px !important;
+  }
+
+  #bloqueImagenes1 img,
+  #bloqueImagenes2 img {
+    width: 80px !important;
+    height: 80px !important;
+  }
+}
   </style>
 </head>
 <body>
@@ -196,7 +367,7 @@ function mostrarEstadoRacha(esActiva) {
         titulo = '💠 Pasaste a Rachita';
         mensaje = 'No pudiste cumplir con la racha, pero no te desanimes: participa en la rachita y gana premios.';
         subtitulo = 'Participa en la rachita y gana la canasta navideña. 🎁';
-        imagen = 'rachita.png';
+        imagen = 'Mini-rachita.png';
         fondo = 'linear-gradient(135deg, #0033cc, #0055ff, #66a3ff)';
         colorBoton = '#0033cc';
     }
@@ -270,9 +441,8 @@ function crearRachitaDebajo() {
                 margin-bottom:10px;
             ">🎁 ¡Rachita desbloqueada! 🎁</div>
 
-            <!-- Contenedor horizontal de esferas + contador -->
-            <div style="display:flex; align-items:center; gap:15px;">
-                <div id="esferasRachita" style="display:flex; flex-wrap:wrap; gap:10px;">
+            <!-- Contenedor de esferas -->
+            <div id="esferasRachita" style="display:flex; flex-wrap:wrap; justify-content:center; gap:10px;">
     `;
 
     for (let i = 1; i <= 10; i++) {
@@ -307,16 +477,17 @@ function crearRachitaDebajo() {
     }
 
     html += `
-                </div>
-                <!-- Contador al lado -->
-                <div id="contadorRachita" style="
-                    font-family:'Poppins',sans-serif;
-                    font-weight:700;
-                    font-size:30px;
-                    color:#ff7300;
-                    text-align:center;
-                    white-space:nowrap;
-                ">= 0 / 7</div>
+            </div>
+            <!-- Contador debajo -->
+            <div id="contadorRachita" style="
+                font-family:'Poppins',sans-serif;
+                font-weight:700;
+                font-size:30px;
+                color:#ff7300;
+                text-align:center;
+                margin-top:10px;
+            ">
+                = 0 / 7
             </div>
         </div>
     `;
@@ -348,7 +519,7 @@ function actualizarEsferasRachita(lista_semana,lista_diferencia) {
     }
 
     // Actualizar contador al lado
-    $('#contadorRachita').text(`= ${cumplida} / 7`);
+    $('#contadorRachita').text(`Has cumplido ${cumplida} de los 7 desafíos`);
 }
 // Agregar animación CSS
 const style = document.createElement('style');
@@ -644,24 +815,21 @@ dataTable = $('#dataTable').DataTable(
                 <div id="contadorRacha" style="
                 font-family:'Poppins',sans-serif;
                 font-weight:700;
-                font-size:35px;
+                font-size:28px;
                 color:#007bff;
-                margin-left:20px;
-                align-self:center;
-                margin-top:-20px;
-                ">
-                = 0/15
-                </div>
+                text-align:center;
+                margin-top:10px;
+                "> Has cumplido 0 de los 15 desafíos </div>
                 `);
-                 $('#contenedorEsferas, #contadorRacha').wrapAll(`
-                <div id="contenedorBloque" style="
-                    display:flex;
-                    justify-content:center;
-                    align-items:center;
-                    gap:20px;
-                    margin-bottom:20px;
-                    flex-wrap:wrap;
-                "></div>
+            $('#contenedorEsferas, #contadorRacha').wrapAll(`
+            <div id="contenedorBloque" style="
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:center;
+            gap:10px;
+            margin-bottom:20px;
+            "></div>
             `);
             }
             else 
@@ -888,7 +1056,7 @@ dataTable = $('#dataTable').DataTable(
                     $('#contentContainer').append(footerHTML);
                 }
 
-                $('#contadorRacha').text(`= ${semanasCumplidas} / 15`);
+                $('#contadorRacha').text(`Has cumplido ${semanasCumplidas} de los 15 desafíos`);
                 $('#mensajeRacha').remove();
                 const filas = $('#dataTable tbody tr');
 
