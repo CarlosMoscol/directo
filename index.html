@@ -918,7 +918,7 @@ dataTable = $('#dataTable').DataTable(
                         const match = semanaRaw.match(/\d+/);
                         const semanaNum = match ? parseInt(match[0]) : null;
                         const diferencia = parseFloat(diferenciaRaw);
-                        if (semanaNum >= semanaInicioRachita && (semanaInicioRachita === 0 || semanaInicioRachita === "")) {
+                        if (semanaNum >= semanaInicioRachita) {
                             semanasrachita.push(semanaNum);
                             semanasdiferencia.push(diferencia);
                             if (diferencia >= 0) {
