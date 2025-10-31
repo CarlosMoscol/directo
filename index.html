@@ -954,7 +954,7 @@ dataTable = $('#dataTable').DataTable(
                         case 'Bellavista':
                         case 'JOCKEY PLAZA':
                         case 'BELLAVISTA':
-                            mensajeflota = 'Realiza 06 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto de Jueves a Domingo entre las 4pm y 12am.<br>- Servicios en Ciudad entre las 5am y 9am o 5pm a 9pm.<br>- Servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
+                            mensajeflota = 'Realiza 06 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto de Jueves a Domingo entre las 4pm y 12am.<br>- Servicios en Ciudad de Lunes a Viernes entre las 5am y 9am o 5pm a 9pm.<br>- Servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
                             break;
                         default:
                             mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
@@ -996,18 +996,18 @@ dataTable = $('#dataTable').DataTable(
                 }
                  else if (semanaInicioRachita !== 0 && numsemrachita === semanadifpositiva.length)
                 {
-                    titulo = 'Necesitas restablecer tu rachita';
+                    titulo = 'Tu rachita esta que arde 🔥';
                     imagen = 'Mini-rachita.png';
-                    subtitulo = 'Desafíos de restablecimiento:';
+                    subtitulo = 'Desafíos de rachita:';
                     switch(flota)
                     {
                         case 'Aeropuerto':
                         case 'AEROPUERTO':
-                            mensajeflota = 'Realiza 02 servicios Aeropuerto el viernes o domingo de 4am a 12pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            mensajeflota = 'Realiza 03 servicios Aeropuerto de Jueves a Domingo entre las 4pm a 11:59pm.';
                             break;
                         case 'Urbano':
                         case 'URBANO':
-                            mensajeflota = 'Realiza 02 servicios este viernes en Ciudad entre las 5am a 9am o 5pm a 9pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            mensajeflota = 'Realiza 06 servicios de Lunes a Viernes en Ciudad.';
                             break;
                         case 'Latam':
                         case 'JetSmart':
@@ -1015,13 +1015,13 @@ dataTable = $('#dataTable').DataTable(
                         case 'LATAM':
                         case 'JETSMART':
                         case 'SKY':
-                            mensajeflota = 'Realiza 02 servicios Aerolíneas (LATAM, SKY o JETSMART) el viernes y domingo de 4am a 12pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            mensajeflota = 'Realiza 15 servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
                             break;
                         case 'Jockey Plaza':
                         case 'Bellavista':
                         case 'JOCKEY PLAZA':
                         case 'BELLAVISTA':
-                            mensajeflota = 'Realiza 02 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto el viernes y domingo de 4am a 12pm.<br>- Servicios este viernes en Ciudad entre las 5am a 9am o 5pm a 9pm.<br>- Servicios Aerolíneas (LATAM, SKY o JETSMART) el viernes y domingo de 4am a 12pm. <br> Una vez los cumplas, escríbenos para cambiar tu estado (+51 933 708 561)';
+                            mensajeflota = 'Realiza 06 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto de Jueves a Domingo entre las 4pm y 11:59am.<br>- Servicios en Ciudad de Lunes a Viernes.<br>- Servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
                             break;
                         default:
                             mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
