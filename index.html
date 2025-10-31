@@ -853,6 +853,7 @@ dataTable = $('#dataTable').DataTable(
                 const dias = Math.floor((hoy - inicioAno) / (24 * 60 * 60 * 1000));
                 const semanaActual = Math.ceil((dias + inicioAno.getDay() + 1) / 7);
                 numsem = semanaActual - semanaIngreso;
+                
 
                 $('#labelFlota').text('Flota: ' + flota);
                 let mensajeflota = '';
@@ -899,8 +900,33 @@ dataTable = $('#dataTable').DataTable(
 
                     }
                 };
-
-                    
+                
+                
+                if (semanaInicioRachita < 42 & semanaInicioRachita !== null)
+                    {
+                        semanaInicioRachita = 42;
+                    }
+                numsemrachita = semanaActual - semanaInicioRachita
+                let semanasrachita = [];
+                let semanasdiferencia = [];
+                let semanadifpositiva = [];
+                if (semanaInicioRachita !== null) {
+                    for (const row of [...rowsData].reverse()) {
+                        const semanaRaw = String(row[idxSemana] || '').trim();
+                        let diferenciaRaw = row[idxDiferencia];
+                        diferenciaRaw = String(diferenciaRaw).replace(/<[^>]*>/g, '').trim();
+                        const match = semanaRaw.match(/\d+/);
+                        const semanaNum = match ? parseInt(match[0]) : null;
+                        const diferencia = parseFloat(diferenciaRaw);
+                        if (semanaNum >= semanaInicioRachita) {
+                            semanasrachita.push(semanaNum);
+                            semanasdiferencia.push(diferencia);
+                            if (diferencia >= 0) {
+                                semanadifpositiva.push(diferencia);
+                            }
+                        }
+                    }
+                }
                 if (semanasCumplidas === numsem && (semanaInicioRachita === 0 || semanaInicioRachita === ""))
                 {
                     titulo = '¡La estás rompiendo, sigue así!';
@@ -1001,28 +1027,6 @@ dataTable = $('#dataTable').DataTable(
                             mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
                     }
                     
-                }
-                
-                
-                if (semanaInicioRachita < 42 & semanaInicioRachita !== null)
-                    {
-                        semanaInicioRachita = 42;
-                    }
-                let semanasrachita = [];
-                let semanasdiferencia = [];
-                if (semanaInicioRachita !== null) {
-                    for (const row of [...rowsData].reverse()) {
-                        const semanaRaw = String(row[idxSemana] || '').trim();
-                        let diferenciaRaw = row[idxDiferencia];
-                        diferenciaRaw = String(diferenciaRaw).replace(/<[^>]*>/g, '').trim();
-                        const match = semanaRaw.match(/\d+/);
-                        const semanaNum = match ? parseInt(match[0]) : null;
-                        const diferencia = parseFloat(diferenciaRaw);
-                        if (semanaNum >= semanaInicioRachita) {
-                            semanasrachita.push(semanaNum);
-                            semanasdiferencia.push(diferencia);
-                        }
-                    }
                 }
                 
 
