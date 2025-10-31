@@ -927,7 +927,7 @@ dataTable = $('#dataTable').DataTable(
                         }
                     }
                 }
-                if (semanasCumplidas === numsem && (semanaInicioRachita === 0 || semanaInicioRachita === ""))
+                if (semanasCumplidas === numsem && (semanaInicioRachita === 0 || semanaInicioRachita === "" || semanaInicioRachita == null))
                 {
                     titulo = '¡La estás rompiendo, sigue así!';
                     imagen = 'racha.png';
@@ -960,7 +960,7 @@ dataTable = $('#dataTable').DataTable(
                             mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
                     }
                 } 
-                else if (semanasCumplidas <= numsem && (semanaInicioRachita === 0 || semanaInicioRachita === ""))
+                else if (semanasCumplidas <= numsem && (semanaInicioRachita === 0 || semanaInicioRachita === "" || semanaInicioRachita == null))
                 {
                     titulo = 'Necesitas restablecer tu racha';
                     imagen = 'congelada.png';
