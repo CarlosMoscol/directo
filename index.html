@@ -853,6 +853,7 @@ dataTable = $('#dataTable').DataTable(
                 const dias = Math.floor((hoy - inicioAno) / (24 * 60 * 60 * 1000));
                 const semanaActual = Math.ceil((dias + inicioAno.getDay() + 1) / 7);
                 numsem = semanaActual - semanaIngreso;
+                
 
                 $('#labelFlota').text('Flota: ' + flota);
                 let mensajeflota = '';
@@ -899,9 +900,34 @@ dataTable = $('#dataTable').DataTable(
 
                     }
                 };
-
-                    
-                if (semanasCumplidas === numsem && (semanaInicioRachita === 0 || semanaInicioRachita === ""))
+                
+                
+                if (semanaInicioRachita < 42 & semanaInicioRachita !== 0)
+                    {
+                        semanaInicioRachita = 42;
+                    }
+                numsemrachita = semanaActual - semanaInicioRachita
+                let semanasrachita = [];
+                let semanasdiferencia = [];
+                let semanadifpositiva = [];
+                if (semanaInicioRachita !== null) {
+                    for (const row of [...rowsData].reverse()) {
+                        const semanaRaw = String(row[idxSemana] || '').trim();
+                        let diferenciaRaw = row[idxDiferencia];
+                        diferenciaRaw = String(diferenciaRaw).replace(/<[^>]*>/g, '').trim();
+                        const match = semanaRaw.match(/\d+/);
+                        const semanaNum = match ? parseInt(match[0]) : null;
+                        const diferencia = parseFloat(diferenciaRaw);
+                        if (semanaNum >= semanaInicioRachita && semanaInicioRachita > 0) {
+                            semanasrachita.push(semanaNum);
+                            semanasdiferencia.push(diferencia);
+                            if (diferencia >= 0) {
+                                semanadifpositiva.push(diferencia);
+                            }
+                        }
+                    }
+                }
+                if (semanasCumplidas === numsem && (semanaInicioRachita === 0 || semanaInicioRachita === "" || semanaInicioRachita == null))
                 {
                     titulo = '¡La estás rompiendo, sigue así!';
                     imagen = 'racha.png';
@@ -928,13 +954,13 @@ dataTable = $('#dataTable').DataTable(
                         case 'Bellavista':
                         case 'JOCKEY PLAZA':
                         case 'BELLAVISTA':
-                            mensajeflota = 'Realiza 06 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto de Jueves a Domingo entre las 4pm y 12am.<br>- Servicios en Ciudad entre las 5am y 9am o 5pm a 9pm.<br>- Servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
+                            mensajeflota = 'Realiza 06 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto de Jueves a Domingo entre las 4pm y 12am.<br>- Servicios en Ciudad de Lunes a Viernes entre las 5am y 9am o 5pm a 9pm.<br>- Servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
                             break;
                         default:
                             mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
                     }
                 } 
-                else if (semanasCumplidas <= numsem && (semanaInicioRachita === 0 || semanaInicioRachita === ""))
+                else if (semanasCumplidas <= numsem && semanaInicioRachita === 0 )
                 {
                     titulo = 'Necesitas restablecer tu racha';
                     imagen = 'congelada.png';
@@ -968,11 +994,45 @@ dataTable = $('#dataTable').DataTable(
                     }
                     
                 }
-                 else if (semanaInicioRachita !== 0)
+                 else if (semanaInicioRachita > 0 && numsemrachita === semanadifpositiva.length )
+                {
+                    titulo = 'Tu rachita esta que arde 🔥';
+                    imagen = 'Mini-rachita.png';
+                    subtitulo = 'Desafíos de rachita:';
+                    switch(flota)
+                    {
+                        case 'Aeropuerto':
+                        case 'AEROPUERTO':
+                            mensajeflota = 'Realiza 03 servicios Aeropuerto de Jueves a Domingo entre las 4pm a 11:59pm.';
+                            break;
+                        case 'Urbano':
+                        case 'URBANO':
+                            mensajeflota = 'Realiza 06 servicios de Lunes a Viernes en Ciudad.';
+                            break;
+                        case 'Latam':
+                        case 'JetSmart':
+                        case 'Sky':
+                        case 'LATAM':
+                        case 'JETSMART':
+                        case 'SKY':
+                            mensajeflota = 'Realiza 15 servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
+                            break;
+                        case 'Jockey Plaza':
+                        case 'Bellavista':
+                        case 'JOCKEY PLAZA':
+                        case 'BELLAVISTA':
+                            mensajeflota = 'Realiza 06 servicios de cualquiera de las siguientes condiciones:<br>- Servicios Aeropuerto de Jueves a Domingo entre las 4pm y 11:59am.<br>- Servicios en Ciudad de Lunes a Viernes.<br>- Servicios Aerolíneas (SKY, LATAM o JETSMART) o Destino Aeropuerto de Lunes a Domingo.';
+                            break;
+                        default:
+                            mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
+                    }
+                    
+                }
+                else if (semanaInicioRachita > 0 && numsemrachita > semanadifpositiva.length)
                 {
                     titulo = 'Necesitas restablecer tu rachita';
                     imagen = 'congelada.png';
-                    subtitulo = 'Desafíos de restablecimiento:';
+                    subtitulo = 'Desafíos de restablecimiento de rachita:';
                     switch(flota)
                     {
                         case 'Aeropuerto':
@@ -1001,28 +1061,6 @@ dataTable = $('#dataTable').DataTable(
                             mensajeflota = 'Flota desconocida, escríbenos para más información al (+51 933 708 561)';
                     }
                     
-                }
-                
-                
-                if (semanaInicioRachita < 42 & semanaInicioRachita !== null)
-                    {
-                        semanaInicioRachita = 42;
-                    }
-                let semanasrachita = [];
-                let semanasdiferencia = [];
-                if (semanaInicioRachita !== null) {
-                    for (const row of [...rowsData].reverse()) {
-                        const semanaRaw = String(row[idxSemana] || '').trim();
-                        let diferenciaRaw = row[idxDiferencia];
-                        diferenciaRaw = String(diferenciaRaw).replace(/<[^>]*>/g, '').trim();
-                        const match = semanaRaw.match(/\d+/);
-                        const semanaNum = match ? parseInt(match[0]) : null;
-                        const diferencia = parseFloat(diferenciaRaw);
-                        if (semanaNum >= semanaInicioRachita) {
-                            semanasrachita.push(semanaNum);
-                            semanasdiferencia.push(diferencia);
-                        }
-                    }
                 }
                 
 
