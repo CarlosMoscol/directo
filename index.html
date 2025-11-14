@@ -906,6 +906,10 @@ dataTable = $('#dataTable').DataTable(
                     {
                         semanaInicioRachita = 42;
                     }
+                if (semanaIngreso >= 42)
+                {
+                    semanaInicioRachita = semanaIngreso
+                }
                 numsemrachita = semanaActual - semanaInicioRachita
                 let semanasrachita = [];
                 let semanasdiferencia = [];
