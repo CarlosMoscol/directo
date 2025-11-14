@@ -1114,7 +1114,7 @@ dataTable = $('#dataTable').DataTable(
                         font-size:30px;
                         ">🔥 TU RACHA SIGUE ACTIVA 🔥</div>`;
                     }
-                    else if (semanasFaltantes>=4)
+                    else if (semanasFaltantes>=4 || semanaIngreso>=42)
                     {
                         mensajeHTML = `<div id="mensajeRacha" style="
                         text-align:center;
@@ -1147,7 +1147,7 @@ dataTable = $('#dataTable').DataTable(
                         mostrarEstadoRacha(true);
                         $('#contenedorRachita').remove(); 
                     } 
-                    else if (semanasFaltantes >=4)
+                    else if (semanasFaltantes >=4 || semanaIngreso >= 42)
                     {
                         $('#contenedorWrap').hide(); 
                         $('#contenedorBloque').hide();
