@@ -1110,7 +1110,7 @@ dataTable = $('#dataTable').DataTable(
                     const estado = ultimaFila.find('td').eq(idxCump).text().trim();
                     let mensajeHTML = "";
                     const semanasFaltantes = numsem - semanasCumplidas;
-                    if (semanasCumplidas === numsem)
+                    if ( semanaIngreso < 42 && semanasCumplidas === numsem)
                     {
                         mensajeHTML = `<div id="mensajeRacha" style="
                         text-align:center;
@@ -1147,7 +1147,7 @@ dataTable = $('#dataTable').DataTable(
                     $('#mensajeRacha').remove();
                     $('#contenedorWrap').html(mensajeHTML);
 
-                    if (semanasCumplidas === numsem)
+                    if ( semanaIngreso < 42&& semanasCumplidas === numsem)
                     {
                         $('#contenedorWrap').show();
                         $('#contenedorBloque').show();
