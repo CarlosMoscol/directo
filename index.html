@@ -577,7 +577,7 @@ $(document).ready(function(){
         const headers = rows[0].map(h => h===null?"":h);
         const thead = $('#theadRow'); thead.empty();
         
-        const allowedHeaders = ['Móvil','Semana', 'Cumplimiento', 'Servicios', 'Meta', 'Diferencia'];
+        const allowedHeaders = ['Móvil','Semana', 'Cumplimiento','FLOTA', 'Servicios', 'Meta', 'Diferencia'];
         
         const headerIndexes = {};
         const displayHeaders = [];
@@ -639,6 +639,7 @@ idxSemana = idxDisplayOf(['Semana']);
 idxMovil = idxDisplayOf(['Móvil', 'Movil']);
 idxServicios = idxDisplayOf(['Servicios']);
 idxMeta = idxDisplayOf(['Meta']);
+idxFlota = idxDisplayOf(['FLOTA']);
 idxCump = idxDisplayOf(['Cumplimiento']);
 idxDiferencia = idxDisplayOf(['Diferencia']);
 const idxFlotaExcel = headers.findIndex(h => normalize(h) === 'flota');
@@ -651,7 +652,8 @@ if (idxSemana >= 0) {
     orderOption = [[idxSemana, 'desc']];
 }
 $('#dataTable thead th').eq(1).text('Estado');
-$('#dataTable thead th').eq(3).text('S. Realizados');
+$('#dataTable thead th').eq(3).text('Flota');
+$('#dataTable thead th').eq(4).text('S. Realizados');
 dataTable = $('#dataTable').DataTable(
     {   
         responsive:false,
@@ -875,12 +877,23 @@ dataTable = $('#dataTable').DataTable(
                     const semanaNum = match ? parseInt(match[0]) : null;
                     const diferencia = parseFloat(diferenciaRaw);
                     const numEsfera = semanaNum ? semanaNum - 35 : null;
+                    const flotaRow = String(row[idxFlota] || '').trim();
+                    let metaRaw = row[idxMeta];
+                    metaRaw = String(metaRaw).replace(/<[^>]*>/g, '').trim();
+                    const metaRow = parseFloat(metaRaw);
                     
                     if (numEsfera >= 1 && numEsfera <= 15) 
                     {
                         const esfera = $(`#sem${numEsfera}`);
                         const icono = esfera.find('.iconoCumplimiento');
-                        if (diferencia >= 0)
+                        if (diferencia >= 0 && 
+                            (
+                                (flotaRow === "Urbano" && (metaRow === 8 || metaRow === 10)) || 
+                                (flotaRow === "Aeropuerto" && metaRow === 8) || 
+                                ((flotaRow === "Latam" || flotaRow === "Sky" || flotaRow === "Jetsmart") && (metaRow === 24 || metaRow === 20)) ||
+                                ((flotaRow === "Bellavista" || flotaRow === "Jockey Plaza") && metaRow === 6) 
+                            )
+                        )
                         {
                             esfera.css('background-color', '#ff7300');
                             icono.attr('src', 'racha.png').show();
@@ -1110,7 +1123,7 @@ dataTable = $('#dataTable').DataTable(
                     const estado = ultimaFila.find('td').eq(idxCump).text().trim();
                     let mensajeHTML = "";
                     const semanasFaltantes = numsem - semanasCumplidas;
-                    if ( semanaIngreso < 42 && semanasCumplidas === numsem)
+                    if (semanasCumplidas === numsem)
                     {
                         mensajeHTML = `<div id="mensajeRacha" style="
                         text-align:center;
@@ -1121,7 +1134,7 @@ dataTable = $('#dataTable').DataTable(
                         font-size:30px;
                         ">🔥 TU RACHA SIGUE ACTIVA 🔥</div>`;
                     }
-                    else if (semanasFaltantes>=4 || semanaIngreso>=42)
+                    else if ( semanaIngreso>=42)
                     {
                         mensajeHTML = `<div id="mensajeRacha" style="
                         text-align:center;
@@ -1147,7 +1160,7 @@ dataTable = $('#dataTable').DataTable(
                     $('#mensajeRacha').remove();
                     $('#contenedorWrap').html(mensajeHTML);
 
-                    if ( semanaIngreso < 42&& semanasCumplidas === numsem)
+                    if (semanaIngreso < 42 && semanasCumplidas === numsem)
                     {
                         $('#contenedorWrap').show();
                         $('#contenedorBloque').show();
